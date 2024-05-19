@@ -1,0 +1,69 @@
+.data
+eol:  .string "\n"  # Define uma string chamada "eol" contendo apenas um caractere de nova linha ("\n")
+string1: .space 1000  # Reserva espaço para a primeira string com 1000 bytes
+
+.text
+
+main:
+    li a7, 5  # Carrega o código da chamada de sistema para ler um inteiro (5) em a7
+    ecall  # Faz a chamada de sistema para ler um inteiro da entrada padrão e armazena o resultado em a0
+    mv t0, a0  # Move o valor lido (quantidade de questões) para o registrador temporário t0
+    
+    addi t0, t0, 1  # Incrementa t0 em 1 (para incluir o caractere de nova linha)
+    addi t1, zero, 0  # Inicializa t1 com zero (contador de acertos)
+    addi t2, zero, 0  # Inicializa t2 com zero (contador para percorrer as strings)
+    
+    la a0, string1  # Carrega o endereço da primeira string em a0
+    mv a1, t0  # Define o tamanho máximo da string
+    li a7, 8  # Código da chamada de sistema para ler da entrada padrão
+    ecall  # Lê a primeira string da entrada
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+    mv t6,t0 # t6= t0
+    addi t0, t0, -1 #para obter a quantidade real de caracteres
+    addi t6,t6,-2 # para calcular o meio
+    srli t5,t0,1#t1 = t0/2¹ meio da string caos impar em caso par vai para o meio tendendo para o final
+    la t3, string1  # Carrega o endereço da primeira string em t3
+    la t4, string1 # Carrega o endereço da primeira string em t3
+    
+    li s0, 1 #s0=1
+    li s3 , 0 #contador do loop
+verificador:
+    beq s3, t5, is_palindrome
+    la t4, string1 #resetando a leitura
+    add t4, t4, t6# deslocando para o fim 
+    lb t1, 0(t3) # carregando o byte da string em t1 ->
+    lb t2, 0(t4) # carregando o byte da string em t1 <-
+    bne t1,t2, not_palindrome
+    j incrementa
+incrementa:
+    addi t3, t3, 1
+    addi t6, t6, -1
+    addi s3, s3, 1
+    j verificador
+is_palindrome:
+    li s1, 1
+    mv a0, s1  # Move o valor de t1 para a0 (resultado final)
+    li a7, 1  # Código da chamada de sistema para imprimir um inteiro
+    ecall  # Imprime o resultado
+    
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    # Termina o programa
+    li a7, 10
+    ecall
+not_palindrome:
+    li s1, 0
+    mv a0, s1  # Move o valor de t1 para a0 (resultado final)
+    li a7, 1  # Código da chamada de sistema para imprimir um inteiro
+    ecall  # Imprime o resultado
+    
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    #termina o programa
+    li a7, 10
+    ecall

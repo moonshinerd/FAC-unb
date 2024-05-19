@@ -1,0 +1,70 @@
+.data
+eol:  .string "\n"  # Define uma string chamada "eol" contendo apenas um caractere de nova linha ("\n")
+string1: .space 1000  # Reserva espaço para a primeira string com 1000 bytes
+string2: .space 1000  # Reserva espaço para a segunda string com 1000 bytes
+
+.text
+
+main:
+    li a7, 5  # Carrega o código da chamada de sistema para ler um inteiro (5) em a7
+    ecall  # Faz a chamada de sistema para ler um inteiro da entrada padrão e armazena o resultado em a0
+    mv t0, a0  # Move o valor lido (quantidade de questões) para o registrador temporário t0
+    
+    addi t0, t0, 1  # Incrementa t0 em 1 (para incluir o caractere de nova linha)
+    addi t1, zero, 0  # Inicializa t1 com zero (contador de acertos)
+    addi t2, zero, 0  # Inicializa t2 com zero (contador para percorrer as strings)
+    
+    la a0, string1  # Carrega o endereço da primeira string em a0
+    mv a1, t0  # Define o tamanho máximo da string
+    li a7, 8  # Código da chamada de sistema para ler da entrada padrão
+    ecall  # Lê a primeira string da entrada
+    
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+    la a0, string2  # Carrega o endereço da segunda string em a0
+    mv a1, t0  # Define o tamanho máximo da string
+    li a7, 8  # Código da chamada de sistema para ler da entrada padrão
+    ecall  # Lê a segunda string da entrada
+    
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+    la t3, string1  # Carrega o endereço da primeira string em t3
+    la t4, string2  # Carrega o endereço da segunda string em t4
+    
+# Comparando os acertos com os gabaritos
+loop:
+    bgt t2, t0, done  # Se t2 for maior que o tamanho máximo, encerra o loop
+    
+    lb t5, 0(t3)  # Carrega o byte apontado por t3 (da primeira string) em t5
+    lb t6, 0(t4)  # Carrega o byte apontado por t4 (da segunda string) em t6
+    
+    beqz t5, done  # Encerra o loop se o caractere da primeira string for nulo ('\0')
+    beqz t6, done  # Encerra o loop se o caractere da segunda string for nulo ('\0')
+    
+    beq t5, t6, igual  # Se os caracteres forem iguais, vai para a etiqueta "ingual"
+    
+    j volta  # Salta para a etiqueta "volta"
+      
+igual:
+    addi t1, t1, 1  # Incrementa o contador de acertos (t1)
+    j volta  # Salta para a etiqueta "volta"
+
+volta:
+    addi t3, t3, 1  # Atualiza o ponteiro para a primeira string
+    addi t4, t4, 1  # Atualiza o ponteiro para a segunda string
+    addi t2, t2, 1  # Incrementa o contador t2
+    
+    j loop  # Retorna ao início do loop
+    
+done:
+
+# Finalizando o programa
+    mv a0, t1  # Move o valor de t1 para a0 (resultado final)
+    li a7, 1  # Código da chamada de sistema para imprimir um inteiro
+    ecall  # Imprime o resultado
+    
+    la a0, eol  # Carrega o endereço da string "eol"
