@@ -1,0 +1,65 @@
+.data
+eol:  .string "\n"  # Define uma string chamada "eol" contendo apenas um caractere de nova linha ("\n")
+nopuede: .string "Entrada invalida."  
+sim: .string "nao"
+nao: .string "sim"
+
+.text
+
+main:
+    li a7, 5  # Carrega o código da chamada de sistema para ler um inteiro (5) em a7
+    ecall  # Faz a chamada de sistema para ler um inteiro da entrada padrão e armazena o resultado em a0
+    mv t0, a0  # Move o valor lido para o registrador temporário t0
+    
+    beq t0, zero, entrada_invalida
+    blt t0, zero, entrada_invalida
+    
+    mv t1, t0 #copiando o valor do primo em t1 para começar a comparar
+    addi t1, t1, -1 #t1 = t1-1
+    li t2, 1 #carregando t2 com 1
+    j primo
+primo:
+    beq t1, t2, OUI #verificando se t1 é igual a 1 e indo para OUI
+    rem t3, t0,t1 # t3 = t0%t1
+    beq t3,zero, no #se t3 não for igual a 0 vai para no
+    addi t1,t1, -1 #t1 = t1-1
+    j primo
+    
+
+no: 
+    la a0, sim  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+     
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+     #termina o programa
+    li a7, 10
+    ecall
+   
+OUI:
+    la a0, nao  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+     
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+     #termina o programa
+    li a7, 10
+    ecall
+entrada_invalida:    
+    la a0, nopuede  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+     
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+     #termina o programa
+    li a7, 10
+    ecall
