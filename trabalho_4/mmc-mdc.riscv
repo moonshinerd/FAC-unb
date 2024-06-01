@@ -1,0 +1,85 @@
+.data
+eol:  .string "\n"  # Define uma string chamada "eol" contendo apenas um caractere de nova linha ("\n")
+nopuede: .string "Entrada invalida."  
+sim: .string "nao"
+nao: .string "sim"
+
+.text
+
+main:
+#s0 irá armazenar o mdc
+#s1 irá armazenar o mmc
+    li a7, 5  # Carrega o código da chamada de sistema para ler um inteiro (5) em a7
+    ecall  # Faz a chamada de sistema para ler um inteiro da entrada padrão e armazena o resultado em a0
+    mv t0, a0  # Move o valor lido para o registrador temporário t0
+    
+    li a7, 5  # Carrega o código da chamada de sistema para ler um inteiro (5) em a7
+    ecall  # Faz a chamada de sistema para ler um inteiro da entrada padrão e armazena o resultado em a0
+    mv t1, a0  # Move o valor lido para o registrador temporário t0
+   
+    
+    li s2, 1 #carregando s2 com 1
+    beq t0, s2, invalidado # caso t0 seja igual a 1 invalida
+    beq t1, s2, invalidado #caso t1 seja igual a 1 invalida
+    beq t0, zero, invalidado 
+    blt t0, zero, invalidado
+    beq t1, zero, invalidado
+    blt t1, zero, invalidado
+    bgt t0,t1, t1menor # definir t3 como  o menor número
+    bgt t1,t0, t0menor # definir t3 como o menor numero
+
+t1menor:
+    mv t3, t1 #t3 sempre sera o menor numero 
+    j mdc #pula para mdc
+t0menor:
+    mv t3, t0 #t3 sempre sera o menor numero 
+    j mdc#pula para mdc
+mdc:
+    beq t3 , s2, achoumdc
+    rem t4, t0,t3
+    rem t5, t1,t3
+    add s3, t5, t4
+    beqz s3, achoumdc
+    addi t3,t3,-1
+    j mdc
+achoumdc:
+    mv s0, t3
+    j mmc
+mmc:
+    mul s1, t0,t1
+    div s1 , s1, s0
+    j final_feliz
+final_feliz:
+    mv a0, s0  # Move o valor de t1 para a0 (resultado final)
+    li a7, 1  # Código da chamada de sistema para imprimir um inteiro
+    ecall  # Imprime o resultado
+    
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+    mv a0, s1  # Move o valor de t1 para a0 (resultado final)
+    li a7, 1  # Código da chamada de sistema para imprimir um inteiro
+    ecall  # Imprime o resultado
+    
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+     #termina o programa
+    li a7, 10
+    ecall
+invalidado:    
+    la a0, nopuede  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+     
+    la a0, eol  # Carrega o endereço da string "eol" em a0
+    li a7, 4  # Código da chamada de sistema para imprimir uma string
+    ecall  # Imprime uma nova linha
+    
+     #termina o programa
+    li a7, 10
+    ecall
+    
+    
